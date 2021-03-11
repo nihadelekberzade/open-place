@@ -27,13 +27,10 @@ const INIT_ZOOM = 4;
 const PLACE_MENU_ZOOM = 17;
 
 export default function Map() {
-
   const { authData } = useContext(AuthContext);
   const isLoggedIn = authData.name && authData.name.length;
-
   let mapLatLon = [INIT_LAT, INIT_LON];
   let mapZoom = INIT_ZOOM;
-
   let hasParams = false;
   const reqParams = qs.parse(location.search.substring(1));
   const { q } = reqParams;
@@ -54,7 +51,6 @@ export default function Map() {
       }
     }
   }
-
   if (!hasParams) {
     try {
       const view = JSON.parse(storage.mapView || '');
@@ -66,7 +62,6 @@ export default function Map() {
       console.warn('Error while decoding saved view');
     }
   }
-
   const reqPath = location.pathname;
   let initialMarker = null;
   if (reqPath.startsWith(OPR_PLACE_URL_PREFIX)) {
@@ -76,7 +71,6 @@ export default function Map() {
       properties: { opr_id: `${oprPlaceId}` },
     };
   }
-
   const [map, setMap] = useState(null);
   const [placeTypes, setPlaceTypes] = useState({});
   const [filterVal, setFilter] = useState('all');
@@ -85,27 +79,22 @@ export default function Map() {
     startDate: new Date(),
     endDate: new Date()
   });
-
   const [marker, setMarker] = useState(initialMarker);
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
   const { promiseInProgress } = usePromiseTracker();
-
   useEffect(() => {
     const request = async () => {
       const { parameters } = await fetchData();
       setPlaceTypes(parameters.placeTypes);
     };
-
     request();
   }, []);
-
   useEffect(() => {
     if (!marker || !marker.initial) {
       onMapStateChanged(mapZoom, mapLatLon[0], mapLatLon[1]);
     }
   }, [marker]);
-
   const onMapStateChanged = (zoom, lat, lng) => {
     mapLatLon = [lat, lng];
     mapZoom = zoom;
@@ -119,31 +108,31 @@ export default function Map() {
   }
 
   return <MapContainer center={mapLatLon} zoom={mapZoom} zoomControl={false} whenCreated={setMap} whenReady={() => setLoading(false)}>
-    <TileLayer
-      attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+    <TileLayer attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
       url="https://tile.osmand.net/{z}/{x}/{y}.png"
       id="tiles"
     />
     <ViewTracker whenMoved={() => {
       onMapStateChanged(map.getZoom(), map.getCenter().lat, map.getCenter().lng);
     }} />
-
-    {marker && <MarkerBlock marker={marker} setMarker={setMarker} whenReady={(markerPlace) => {
-      if (!hasParams) {
-        map.setView(markerPlace.latLon, PLACE_MENU_ZOOM);
-      }
-    }} />}
-
+    {marker &&
+      <MarkerBlock marker={marker} setMarker={setMarker} whenReady={(markerPlace) => {
+        if (!hasParams) {
+          map.setView(markerPlace.latLon, PLACE_MENU_ZOOM);
+        }
+      }} />
+    }
     <MapSidebar position="topright">
       <MapSidebarBlock>
-        {isLoggedIn && <TaskSelector taskSelection={taskSelection} onSelect={setTaskSelection} />}
-        {!isLoggedIn && <Filter placeTypes={placeTypes} onSelect={setFilter} />}
+        {isLoggedIn
+          ? <TaskSelector taskSelection={taskSelection} onSelect={setTaskSelection} />
+          : <Filter placeTypes={placeTypes} onSelect={setFilter} />}
       </MapSidebarBlock>
       {/*<ReviewPlaces setMarker={setMarker} reload={reload}/>*/}
     </MapSidebar>
-
-    {(loading || reload || promiseInProgress) && <OPRMessageOverlay><Loader position="relative" /></OPRMessageOverlay>}
+    {(loading || reload || promiseInProgress) && <OPRMessageOverlay>
+      <Loader position="relative" />
+    </OPRMessageOverlay>}
     {!loading && <OPRLayer mapZoom={mapZoom} filterVal={filterVal} taskSelection={taskSelection} onSelect={setMarker} setLoading={setReload} />}
-
   </MapContainer>;
 }

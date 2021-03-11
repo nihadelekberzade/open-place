@@ -16,6 +16,7 @@ import { Box, IconButton, Link } from "@material-ui/core";
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import Value from "../../main/blockchain/blocks/Value";
 import Utils from "../../util/Utils";
+import { useMap } from 'react-leaflet';
 
 const useStyles = makeStyles({
     container: {
@@ -58,7 +59,6 @@ const useStyles = makeStyles({
         },
     },
 });
-
 const findObject = (obj = {}, key) => {
     let result = null;
     const recursiveSearch = (obj = {}) => {
@@ -77,7 +77,6 @@ const findObject = (obj = {}, key) => {
     recursiveSearch(obj);
     return result;
 };
-
 export default function MarkerBlock({ marker, setMarker, whenReady }) {
     const [op, setOp] = useState(null);
     const [places, setPlaces] = useState([]);
@@ -85,22 +84,17 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
     const [version, setVersion] = useState(0);
     const [markerPlace, setMarkerPlace] = useState(null);
     const classes = useStyles();
-
     const [place] = places;
     const { authData } = useContext(AuthContext);
-
     const handleExtractPlace = (object) => {
         setPlaces([object, object]);
     }
-
     const handleUpdatePlace = () => {
         setVersion(place.version + 1);
     }
-
     useExtractObject(marker, version, handleExtractPlace);
     useDiff(places[0], places[1], categories, setOp);
     useCommitOp(op, authData, handleUpdatePlace);
-
     let imagesSidebar;
     if (place && place.images && categories) {
         const { images } = place;
@@ -109,26 +103,13 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
             {images.review && images.review.length > 0 ? <BlockExpandable key={-1} header={`Photos - To review (${images.review.length})`}>
                 <ReviewImagesBlock place={place} onSubmit={setPlaces} isLoggedIn={isLoggedIn} initialCategory="review" categories={categories} />
             </BlockExpandable> : ''}
-
             {Object.keys(categories).map((category, index) => images[category] && images[category].length > 0 ? <BlockExpandable key={index} header={`Photos - ${Utils.capitalize(category)} (${images[category].length})`}>
                 <ReviewImagesBlock place={place} onSubmit={setPlaces} isLoggedIn={isLoggedIn} initialCategory={category} categories={categories} />
             </BlockExpandable> : '')}
         </React.Fragment>;
     }
-
-    useEffect(() => {
-        const requestCategories = async () => {
-            const data = await getObjectsById('sys.operation', 'opr.place');
-            const object = data.objects.shift();
-            setCategories(object && object.interface && object.interface.images ? object.interface.images.values : null);
-        };
-
-        requestCategories();
-    }, []);
-
     let oprId = marker.properties.opr_id;
     useEffect(() => {
-
         let title = null;
         let subtitle = null;
         let sources = null;
@@ -148,7 +129,6 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
                 sources = source;
             }
         }
-
         if (!title) {
             let name = findObject(sources, 'name');
             if (name) {
@@ -177,7 +157,6 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
                 latLon = [lat, lon];
             }
         }
-
         if (place) {
             setMarkerPlace({
                 oprId: oprId,
@@ -189,13 +168,20 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
             });
         }
     }, [places]);
-
     useEffect(() => {
         if (markerPlace) {
             whenReady(markerPlace);
         }
     }, [markerPlace]);
-
+    useEffect(() => {
+        const requestCategories = async () => {
+            const data = await getObjectsById('sys.operation', 'opr.place');
+            const object = data.objects.shift();
+            setCategories(object && object.interface && object.interface.images ? object.interface.images.values : null);
+        };
+        requestCategories();
+    }, []);
+    const map = useMap();
     return <MapSidebar position="left" className={classes.container}>
         <div className={classes.sidebar}>
             <Box display="flex" flexDirection="row" style={{ marginBottom: "10px" }} alignItems="center" justifyContent="space-between">
@@ -203,18 +189,18 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
                     <p className={classes.header}>{markerPlace && markerPlace.title}</p>
                     <p className={classes.subheader}>{markerPlace && markerPlace.subtitle}</p>
                 </div>
-                <IconButton onClick={() => setMarker(null)}>
+                <IconButton onClick={() => {
+                    setMarker(null);
+                    map._handlers.forEach(handler => handler.enable());
+                }}>
                     <CancelRoundedIcon className={classes.closeIcon} />
                 </IconButton>
             </Box>
-
             <div className={classes.attributes}>
                 <p>ID: <Link href={`/data/objects/opr_place?key=${oprId}`}>{oprId}</Link></p>
                 <p>Location: <Value>{markerPlace && markerPlace.latLon && markerPlace.latLon[0].toFixed(5)}, {markerPlace && markerPlace.latLon && markerPlace.latLon[1].toFixed(5)}</Value></p>
             </div>
-
             {markerPlace && markerPlace.sources && Object.entries(markerPlace.sources).map(([type, source], index) => source.length > 0 ? <AttributesBar sources={source} sourceType={type} key={index} /> : '')}
-
             {imagesSidebar}
         </div>
     </MapSidebar>;

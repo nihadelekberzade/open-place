@@ -1,7 +1,7 @@
 import React from 'react';
-import {Select, MenuItem} from '@material-ui/core';
+import { Select, MenuItem } from '@material-ui/core';
 import filter from '../../../assets/images/icons/filter.svg';
-import {makeStyles} from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles({
   filter: {
@@ -39,38 +39,35 @@ const useStyles = makeStyles({
   }
 });
 
-export default ({placeTypes, onSelect}) => {
+export default ({ placeTypes, onSelect }) => {
   const classes = useStyles();
-
   const options = [<MenuItem value="all" key="all">All</MenuItem>];
   for (let type in placeTypes) {
     options.push(<MenuItem value={type} key={type}>{placeTypes[type]}</MenuItem>);
   }
-
   const changeHandler = (e) => {
     onSelect(e.target.value);
   }
-
   return <div className={classes.filter}>
     <img src={filter} alt="icon" className={classes.icon} />
     <div className={classes.container}>
       <p className={classes.header}>Filter places</p>
       <Select
-          classes={{
-            root: classes.dropdown,
-            icon: classes.dropdownIcon,
-          }}
-          className={classes.select}
-          onChange={changeHandler}
-          placeholder="Select category"
-          fullWidth={true}
-          disableUnderline={true}
-          label="Category"
-          defaultValue="all"
+        classes={{
+          root: classes.dropdown,
+          icon: classes.dropdownIcon,
+        }}
+        className={classes.select}
+        onChange={changeHandler}
+        placeholder="Select category"
+        fullWidth={true}
+        disableUnderline={true}
+        label="Category"
+        defaultValue="all"
       >
         {options}
       </Select>
     </div>
-  </div>
+  </div >
 };
 

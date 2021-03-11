@@ -11,7 +11,6 @@ const POSITION_CLASSES = {
   left: 'leaflet-top leaflet-bottom leaflet-left',
   right: 'leaflet-top leaflet-bottom leaflet-right',
 }
-
 const useStyles = makeStyles({
   sidebar: {
     border: "none !important",
@@ -20,11 +19,9 @@ const useStyles = makeStyles({
     alignItems: (props) => { props.alignItems },
   }
 });
-
 export default ({ position, className, children }) => {
   const sidebarRef = useRef();
   const map = useMap();
-
   useEffect(() => {
     // Disable dragging when user's cursor enters the element
     L.DomEvent.addListener(sidebarRef.current, 'mouseover', () => {
@@ -34,7 +31,6 @@ export default ({ position, className, children }) => {
       map._handlers.forEach(handler => handler.enable());
     });
   }, []);
-
   let alignItems;
   if (position === 'topright' || position === 'bottomright' || position === 'right') {
     alignItems = 'flex-end';

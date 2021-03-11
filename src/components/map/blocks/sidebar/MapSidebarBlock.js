@@ -1,5 +1,5 @@
 import React from 'react';
-import {makeStyles} from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles({
     root: {
@@ -13,9 +13,8 @@ const useStyles = makeStyles({
     },
 });
 
-export default function MapSidebarBlock({children, width}) {
-    const classes = useStyles({width});
-
+export default function MapSidebarBlock({ children, width }) {
+    const classes = useStyles({ width });
     return <div className={classes.root}>
         {children}
     </div>;
