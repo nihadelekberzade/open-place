@@ -24,7 +24,7 @@ export default ({ position, className, children }) => {
   const map = useMap();
   useEffect(() => {
     // Disable dragging when user's cursor enters the element
-    L.DomEvent.addListener(sidebarRef.current, 'mouseover', () => {
+    L.DomEvent.addListener(sidebarRef.current, 'mouseenter', () => {
       map._handlers.forEach(handler => handler.disable());
     });
     L.DomEvent.addListener(sidebarRef.current, 'mouseout', () => {

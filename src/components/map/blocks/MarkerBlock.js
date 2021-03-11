@@ -189,10 +189,7 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
                     <p className={classes.header}>{markerPlace && markerPlace.title}</p>
                     <p className={classes.subheader}>{markerPlace && markerPlace.subtitle}</p>
                 </div>
-                <IconButton onClick={() => {
-                    setMarker(null);
-                    map._handlers.forEach(handler => handler.enable());
-                }}>
+                <IconButton onClick={() => setMarker(null)}>
                     <CancelRoundedIcon className={classes.closeIcon} />
                 </IconButton>
             </Box>
@@ -203,5 +200,5 @@ export default function MarkerBlock({ marker, setMarker, whenReady }) {
             {markerPlace && markerPlace.sources && Object.entries(markerPlace.sources).map(([type, source], index) => source.length > 0 ? <AttributesBar sources={source} sourceType={type} key={index} /> : '')}
             {imagesSidebar}
         </div>
-    </MapSidebar>;
+    </MapSidebar >;
 };
