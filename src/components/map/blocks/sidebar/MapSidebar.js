@@ -24,7 +24,7 @@ export default ({ position, className, children }) => {
   const map = useMap();
   useEffect(() => {
     // Disable dragging when user's cursor enters the element
-    L.DomEvent.addListener(sidebarRef.current, 'mouseenter', () => {
+    L.DomEvent.addListener(sidebarRef.current, 'mouseover', () => {
       map._handlers.forEach(handler => handler.disable());
     });
     L.DomEvent.addListener(sidebarRef.current, 'mouseout', () => {
@@ -37,7 +37,6 @@ export default ({ position, className, children }) => {
   } else {
     alignItems = 'flex-start';
   }
-
   const classes = useStyles({ alignItems });
   const positionClass =
     (position && POSITION_CLASSES[position]) || POSITION_CLASSES.topleft

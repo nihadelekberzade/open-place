@@ -26,6 +26,8 @@ const INIT_LON = -35.0;
 const INIT_ZOOM = 4;
 const PLACE_MENU_ZOOM = 17;
 
+let tempMap = [];
+
 export default function Map() {
   const { authData } = useContext(AuthContext);
   const isLoggedIn = authData.name && authData.name.length;
@@ -92,9 +94,17 @@ export default function Map() {
   }, []);
   useEffect(() => {
     if (!marker || !marker.initial) {
+      if (map) {
+        tempMap._handlers.forEach(handler => handler.enable());
+        setMap(tempMap);
+      }
       onMapStateChanged(mapZoom, mapLatLon[0], mapLatLon[1]);
     }
   }, [marker]);
+  useEffect(() => {
+    tempMap = map;
+  }, [map])
+
   const onMapStateChanged = (zoom, lat, lng) => {
     mapLatLon = [lat, lng];
     mapZoom = zoom;
